@@ -1,5 +1,3 @@
-module sistemaDeBagagens
-
 enum Ticket {
 	verde, vermelho
 }
@@ -41,6 +39,8 @@ fact {
 	all pc:PassageiroComum | limitePassageiroComum[pc] implies pc.ticket=verde else pc.ticket = vermelho
 	all pm:PassageiroMilhagem | limitePassageiroMilhagem[pm] implies pm.ticket=verde else pm.ticket = vermelho
 	all pv:PassageiroVIP | limitePassageiroVIP[pv] implies pv.ticket=verde else pv.ticket = vermelho
+	all b:Bagagem | one (b.~bagagens)
+	all t:Ticket| one t.~ticket
 }
 
 pred show[]{}
