@@ -4,8 +4,8 @@ abstract sig Passageiro{
 
 
 sig PassageiroComum extends Passageiro{}
---sig PassageiroMilhagem extends Passageiro{}
---sig PassageiroVIP extends Passageiro{}
+sig PassageiroMilhagem extends Passageiro{}
+sig PassageiroVIP extends Passageiro{}
 
 
 abstract sig Bagagem{}
@@ -19,19 +19,30 @@ sig BagagemPesada extends Bagagem{}
 
 
 pred limitePassageiroComum[p:PassageiroComum]{
-	#(BagagemMediana & p.bagagens)=0 and
+	no(BagagemMediana & p.bagagens) and
+	lone (BagagemLeve & p.bagagens)  and
+	lone (BagagemPesada & p.bagagens) 
+} 
+
+pred limitePassageiroMilhagem[p:PassageiroMilhagem]{
+	lone(BagagemMediana & p.bagagens) and
 	lone (BagagemLeve & p.bagagens)  and
 	lone (BagagemPesada & p.bagagens) 
 
+}
 
+pred limitePassageiroVIP[p:PassageiroVIP]{
+	# (BagagemMediana & p.bagagens) < 3 and
+	# (BagagemPesada & p.bagagens)  < 3 and
+	lone  (BagagemLeve & p.bagagens)
 
+}
 
-} 
 
 fact{
-	all p:PassageiroComum | limitePassageiroComum[p]
-
-
+	all pc:PassageiroComum | limitePassageiroComum[pc]
+	all pm:PassageiroMilhagem | limitePassageiroMilhagem[pm]
+	all pv:PassageiroVIP | limitePassageiroVIP[pv]
 
 }
 
