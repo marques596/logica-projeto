@@ -1,0 +1,74 @@
+MODULE main
+	
+	
+	--O comum leva 1 leve e 1 pesada
+	--Milhagem leva 1 leve, 1 pesada e 1 media
+	--VIP leva ate 2 leves, 2 pesadas e 1 media
+	VAR
+		bagagem:{leve,media,pesada,terminou};
+		passageiro:{comum,milhagem,vip};
+		ticket:{verde,vermelho};
+		--leve,media,pesada
+		carregando: array 0..2 of 0..10;
+	
+	ASSIGN
+		init(carregando[0]):= 0;
+		init(carregando[1]):= 0;
+		init(carregando[2]):= 0;
+		init(ticket):=verde;
+		
+		next(bagagem):=case
+			
+			bagagem = leve & passageiro = comum & carregando[0]<1 : {pesada,terminou};
+			bagagem = leve & passageiro = milhagem : {media,pesada,terminou};
+			bagagem = leve & passageiro = vip : {leve,media,pesada,terminou};
+	
+			bagagem = media & passageiro = milhagem : {leve,pesada,terminou};
+			bagagem = media & passageiro = vip : {leve,pesada,terminou};
+			
+			bagagem = pesada & passageiro = comum : {leve,terminou};
+			bagagem = pesada & passageiro = milhagem : {leve,media,terminou};
+			bagagem = pesada & passageiro = vip: {leve,media,pesada,terminou};
+			
+			TRUE: terminou;
+		esac;
+		
+		next(carregando[0]):=case
+			bagagem = comum & carregando[0]<10: carregando[0]+1;
+			TRUE: carregando[0];
+		esac;
+		next(carregando[1]):=case
+			bagagem = media & carregando[1]<10: carregando[1]+1;
+			TRUE: carregando[1];
+		esac;
+		next(carregando[2]):=case
+			bagagem = pesada & carregando[2]<10: carregando[2]+1;
+			TRUE: carregando[2];
+		esac;
+		
+		next(ticket):=case
+			
+			passageiro = comum & (carregando[0]<2 & carregando[1] = 0 & carregando[2]<2) : verde;
+			passageiro = milhagem & (carregando[0]<2 & carregando[1]<2 & carregando[2]<2): verde;
+			passageiro = vip & (carregando[0]<3 & carregando[1]<2 & carregando[2]<3): verde;
+			TRUE: vermelho;
+			
+		esac;
+		
+	
+	--CONDICOES DE TICKET VERDE
+	LTLSPEC G(F bagagem = terminou -> G(
+	((passageiro = comum & carregando[0]<2 & carregando[1]<1 & carregando[2]<2)->ticket = verde) | 
+	((passageiro = milhagem & carregando[0]<2 & carregando[1]<2 & carregando[2]<2)->ticket = verde) |
+	((passageiro = vip & carregando[0]<3 & carregando[1]<2 & carregando[2]<3)->ticket = verde)
+	));
+	
+	--CONDICOES DE TICKET VERMELHO
+	LTLSPEC G(F bagagem = terminou -> G(
+	((passageiro = comum & (carregando[0]>1 | carregando[1]>0 | carregando[2]>1)) -> ticket = vermelho) | 
+	((passageiro = milhagem & (carregando[0]>1 | carregando[1]>1 | carregando[2]>1)) -> ticket = vermelho) |
+	((passageiro = vip & (carregando[0]>2 | carregando[1]>1 | carregando[2]>2)) -> ticket = vermelho)
+	));
+	
+	--Nao sei se esta correto, aparentemente sim mas nunca se sabe.
+			
