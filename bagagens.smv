@@ -17,9 +17,12 @@ MODULE main
 		init(carregando[2]):= 0;
 		init(ticket):=verde;
 		
+		--se as bagagens forem completamente aleatorias, entao o bloco abaixo deve ser removido
+		--pois esse bloco delimita quais os possiveis valores de bagagem de acordo com o estado
+		
 		next(bagagem):=case
 			
-			bagagem = leve & passageiro = comum & carregando[0]<1 : {pesada,terminou};
+			bagagem = leve & passageiro = comum : {pesada,terminou};
 			bagagem = leve & passageiro = milhagem : {media,pesada,terminou};
 			bagagem = leve & passageiro = vip : {leve,media,pesada,terminou};
 	
@@ -31,6 +34,7 @@ MODULE main
 			bagagem = pesada & passageiro = vip: {leve,media,pesada,terminou};
 			
 			TRUE: terminou;
+			
 		esac;
 		
 		next(carregando[0]):=case
