@@ -61,18 +61,21 @@ MODULE main
 		
 	
 	--CONDICOES DE TICKET VERDE
-	LTLSPEC G(F bagagem = terminou -> G(
+	LTLSPEC G(
 	((passageiro = comum & carregando[0]<2 & carregando[1]<1 & carregando[2]<2)->ticket = verde) | 
 	((passageiro = milhagem & carregando[0]<2 & carregando[1]<2 & carregando[2]<2)->ticket = verde) |
 	((passageiro = vip & carregando[0]<3 & carregando[1]<2 & carregando[2]<3)->ticket = verde)
-	));
+	);
 	
 	--CONDICOES DE TICKET VERMELHO
-	LTLSPEC G(F bagagem = terminou -> G(
+	LTLSPEC G(
 	((passageiro = comum & (carregando[0]>1 | carregando[1]>0 | carregando[2]>1)) -> ticket = vermelho) | 
 	((passageiro = milhagem & (carregando[0]>1 | carregando[1]>1 | carregando[2]>1)) -> ticket = vermelho) |
 	((passageiro = vip & (carregando[0]>2 | carregando[1]>1 | carregando[2]>2)) -> ticket = vermelho)
-	));
+	);
+	
+	--GARANTINDO QUE MAIS DE DUAS BAGAGENS DE UM MESMO SEMPRE RESULTA EM UM TICKET VERMELHO
+	LTLSPEC F(G(carregando[0]>2 | carregando[1]>1 | carregando[2]>2) -> ticket = vermelho);
 	
 	--Nao sei se esta correto, aparentemente sim mas nunca se sabe.
 			
