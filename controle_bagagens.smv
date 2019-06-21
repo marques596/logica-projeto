@@ -17,25 +17,7 @@ MODULE main
 		init(carregando[2]):= 0;
 		init(ticket):=verde;
 		
-		--se as bagagens forem completamente aleatorias, entao o bloco abaixo deve ser removido
-		--pois esse bloco delimita quais os possiveis valores de bagagem de acordo com o estado
-		
-		next(bagagem):=case
-			
-			bagagem = leve & passageiro = comum : {pesada,terminou};
-			bagagem = leve & passageiro = milhagem : {media,pesada,terminou};
-			bagagem = leve & passageiro = vip : {leve,media,pesada,terminou};
-	
-			bagagem = media & passageiro = milhagem : {leve,pesada,terminou};
-			bagagem = media & passageiro = vip : {leve,pesada,terminou};
-			
-			bagagem = pesada & passageiro = comum : {leve,terminou};
-			bagagem = pesada & passageiro = milhagem : {leve,media,terminou};
-			bagagem = pesada & passageiro = vip: {leve,media,pesada,terminou};
-			
-			TRUE: terminou;
-			
-		esac;
+		--Removida a "selecao" das bagagens.
 		
 		next(carregando[0]):=case
 			bagagem = comum & carregando[0]<10: carregando[0]+1;
@@ -60,22 +42,21 @@ MODULE main
 		esac;
 		
 	
+	--Antes a especificação para ser verde não fazia sentido, se trocasse a condição para aceitar vermelho ainda assim viria "true".
+	
 	--CONDICOES DE TICKET VERDE
-	LTLSPEC G(
-	((passageiro = comum & carregando[0]<2 & carregando[1]<1 & carregando[2]<2)->ticket = verde) | 
-	((passageiro = milhagem & carregando[0]<2 & carregando[1]<2 & carregando[2]<2)->ticket = verde) |
-	((passageiro = vip & carregando[0]<3 & carregando[1]<2 & carregando[2]<3)->ticket = verde)
-	);
+	
+	LTLSPEC G(F((passageiro = comum & carregando[0]<2 & carregando[1]<1 & carregando[2]<2)->(ticket = verde)));
+	LTLSPEC G(F((passageiro = milhagem & carregando[0]<2 & carregando[1]<2 & carregando[2]<2)->(ticket = verde)));
+	LTLSPEC G(F((passageiro = vip & carregando[0]<3 & carregando[1]<2 & carregando[2]<3)->(ticket = verde)));
+	
 	
 	--CONDICOES DE TICKET VERMELHO
-	LTLSPEC G(
-	((passageiro = comum & (carregando[0]>1 | carregando[1]>0 | carregando[2]>1)) -> ticket = vermelho) | 
-	((passageiro = milhagem & (carregando[0]>1 | carregando[1]>1 | carregando[2]>1)) -> ticket = vermelho) |
-	((passageiro = vip & (carregando[0]>2 | carregando[1]>1 | carregando[2]>2)) -> ticket = vermelho)
-	);
 	
-	--GARANTINDO QUE MAIS DE DUAS BAGAGENS DE UM MESMO SEMPRE RESULTA EM UM TICKET VERMELHO
+	LTLSPEC G(F((passageiro = comum & (carregando[0]>1 | carregando[1]>0 | carregando[2]>1)) -> (ticket = vermelho)));
+	LTLSPEC G(F((passageiro = milhagem & (carregando[0]>1 | carregando[1]>1 | carregando[2]>1)) -> (ticket = vermelho)));
+	LTLSPEC G(F((passageiro = vip & (carregando[0]>2 | carregando[1]>1 | carregando[2]>2)) -> ticket = vermelho));
+	
+	
+	--GARANTINDO QUE MAIS DE DUAS BAGAGENS LEVES OU PESADAS OU MAIS DE UMA MEDIA SEMPRE RESULTA EM UM TICKET VERMELHO
 	LTLSPEC F(G(carregando[0]>2 | carregando[1]>1 | carregando[2]>2) -> ticket = vermelho);
-	
-	--Nao sei se esta correto, aparentemente sim mas nunca se sabe.
-			
