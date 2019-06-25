@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<alloy>
+
+<view nodetheme="Martha">
+
+<defaultnode/>
+
+<defaultedge layout="yes"/>
+
+<node>
+   <type name="Int"/>
+   <type name="String"/>
+   <type name="univ"/>
+   <type name="seq/Int"/>
+</node>
+
+<node color="Black">
+   <type name="VIP"/>
+</node>
+
+<node color="Blue">
+   <type name="Pesada"/>
+</node>
+
+<node color="Gray">
+   <type name="Comum"/>
+   <type name="Leve"/>
+</node>
+
+<node color="Yellow">
+   <type name="Mediana"/>
+   <type name="Milhagem"/>
+</node>
+
+<node shape="Box" color="Green">
+   <type name="Verde"/>
+</node>
+
+<node shape="Box" color="Red">
+   <type name="Vermelho"/>
+</node>
+
+<node shape="Ellipse">
+   <type name="Passageiro"/>
+</node>
+
+<node shape="Trapezoid">
+   <type name="Bagagem"/>
+</node>
+
+<node style="Bold">
+   <type name="Ticket"/>
+</node>
+
+<edge color="Black" style="Bold">
+   <relation name="ticket"> <type name="Passageiro"/> <type name="Ticket"/> </relation>
+</edge>
+
+<edge color="Blue">
+   <relation name="bagagens"> <type name="Passageiro"/> <type name="Bagagem"/> </relation>
+</edge>
+
+</view>
+
+</alloy>

@@ -2,19 +2,11 @@ module FlyingToHeaven
 
 ------------------------------------------------------------------------------------------------
 --                    GRUPO 3
---                 FRANCISCO IGOR
---                  HIGOR SANTOS
---                  MATEUS ALVES            
+--                FRANCISCO IGOR
+--                HIGOR SANTOS
+--                MATEUS ALVES            
 --                MAURICIO MARQUES
 ------------------------------------------------------------------------------------------------
-
-------------------------------------------------------------------------------------------------
--->                  ENUMERAÇÃO
------------------------------------------------------------------------------------------------
-
-enum Ticket {
-	verde, vermelho
-}
 
 ------------------------------------------------------------------------------------------------
 -->                  ASSINATURAS
@@ -24,54 +16,60 @@ abstract sig Passageiro{
 	bagagens: set Bagagem,
 	ticket: one Ticket
 }
+sig Comum,Milhagem,VIP extends Passageiro{}
 
-sig PassageiroComum extends Passageiro{}
-sig PassageiroMilhagem extends Passageiro{}
-sig PassageiroVIP extends Passageiro{}
 
 abstract sig Bagagem{}
-
-sig BagagemLeve extends Bagagem{}
-sig BagagemMediana extends Bagagem{}
-sig BagagemPesada extends Bagagem{}
+sig Leve,Mediana,Pesada extends Bagagem{}
 
 
+abstract sig Ticket{}
+sig Verde,Vermelho extends Ticket{}
 ------------------------------------------------------------------------------------------------
 -->                  FUNÇÕES
 -----------------------------------------------------------------------------------------------
 
 fun getBagagensLeve [p: Passageiro] : set Bagagem {
-	BagagemLeve & p.bagagens
+	Leve & p.bagagens
 }
 
 fun getBagagensMedianas [p: Passageiro] : set Bagagem {
-	BagagemMediana & p.bagagens
+	Mediana & p.bagagens
 }
 
 fun getBagagensPesadas [p: Passageiro] : set Bagagem {
-	BagagemPesada & p.bagagens
+	Pesada & p.bagagens
 }
 
 ------------------------------------------------------------------------------------------------
 -->                  PREDICADOS
 -----------------------------------------------------------------------------------------------
 
-pred limitePassageiroComum [p:PassageiroComum]{
-	no getBagagensMedianas[p] and
-	lone getBagagensLeve[p] and
-	lone getBagagensPesadas[p]
+--parece que nao precisa usar 'and' no  'pred', se der algum erro dps, volta com os 'and'
+pred limiteComum [c:Comum]{
+	no getBagagensMedianas[c] 
+	lone getBagagensLeve[c] 
+	lone getBagagensPesadas[c]
 } 
 
-pred limitePassageiroMilhagem [p:PassageiroMilhagem]{
-	lone getBagagensMedianas[p] and
-	lone getBagagensLeve[p]  and
-	lone getBagagensPesadas[p]
+pred limiteMilhagem [m:Milhagem]{
+	lone getBagagensMedianas[m] 
+	lone getBagagensLeve[m] 
+	lone getBagagensPesadas[m]
 }
 
-pred limitePassageiroVIP [p:PassageiroVIP]{
-	# getBagagensMedianas[p] < 3 and
-	# getBagagensPesadas[p]  < 3 and
-	lone  getBagagensLeve[p]
+pred limiteVIP [v:VIP]{
+	# getBagagensMedianas[v] < 3 
+	# getBagagensPesadas[v]  < 3 
+	lone  getBagagensLeve[v]
+}
+
+pred passagemPermitida[p:Passageiro]{
+		 p.ticket in Verde
+}
+
+pred passagemNegada[p:Passageiro]{
+		p.ticket in Vermelho
 }
 
 ------------------------------------------------------------------------------------------------
@@ -79,9 +77,9 @@ pred limitePassageiroVIP [p:PassageiroVIP]{
 -----------------------------------------------------------------------------------------------
 
 fact Passageiros {
-	all pc:PassageiroComum | limitePassageiroComum[pc] implies pc.ticket=verde else pc.ticket = vermelho
-	all pm:PassageiroMilhagem | limitePassageiroMilhagem[pm] implies pm.ticket=verde else pm.ticket = vermelho
-	all pv:PassageiroVIP | limitePassageiroVIP[pv] implies pv.ticket=verde else pv.ticket = vermelho
+	all c:Comum | limiteComum[c] implies passagemPermitida[c] else passagemNegada[c]
+	all m:Milhagem | limiteMilhagem[m] implies passagemPermitida[m] else passagemNegada[m]
+	all v:VIP | limiteVIP[v] implies passagemPermitida[v] else passagemNegada[v]
 }
 
 fact Bagagens {
@@ -89,7 +87,7 @@ fact Bagagens {
 }
 
 fact Tickets {
-	all t:Ticket| one t.~ticket
+	all t:Ticket| one (t.~ticket)
 }
 
 ------------------------------------------------------------------------------------------------
@@ -97,47 +95,49 @@ fact Tickets {
 -----------------------------------------------------------------------------------------------
 
 assert bagagensPassageiroComumValidos {
-	all passageiro : PassageiroComum | passageiro.ticket = verde implies
+	all passageiro : Comum | passageiro.ticket = Verde implies
 		(lone getBagagensLeve[passageiro] and 
 		lone getBagagensPesadas[passageiro] and 
 		no getBagagensMedianas[passageiro])
 }
 
 assert bagagensPassageiroComumInvalidos {
-	all passageiro : PassageiroComum | passageiro.ticket = vermelho implies
+	all passageiro : Comum | passageiro.ticket = Vermelho implies
 		(# getBagagensLeve[passageiro] > 1 or 
 		# getBagagensPesadas[passageiro] > 1 or 
 		# getBagagensMedianas[passageiro] > 0)
 }
 
 assert bagagensPassageiroMilhagemValidos {
-	all passageiro : PassageiroMilhagem | passageiro.ticket = verde implies
+	all passageiro : Milhagem | passageiro.ticket = Verde implies
 		(lone getBagagensLeve[passageiro] and 
 		lone getBagagensPesadas[passageiro] and 
 		lone getBagagensMedianas[passageiro])
 }
 
 assert bagagensPassageiroMilhagemInvalidos {
-	all passageiro : PassageiroMilhagem | passageiro.ticket = vermelho implies
+	all passageiro : Milhagem | passageiro.ticket = Vermelho implies
 		(# getBagagensLeve[passageiro] > 1 or 
 		# getBagagensPesadas[passageiro] > 1 or 
 		# getBagagensMedianas[passageiro] > 1)
 }
 
 assert bagagensPassageiroVIPValidos {
-	all passageiro : PassageiroVIP | passageiro.ticket = verde implies
+	all passageiro : VIP | passageiro.ticket = Verde implies
 	(# getBagagensPesadas[passageiro] <= 2 and
 	# getBagagensMedianas[passageiro] <= 2 and
 	lone getBagagensLeve[passageiro])
 }
 
 assert bagagensPassageiroVIPInvalidos {
-	all passageiro : PassageiroVIP | passageiro.ticket = vermelho implies
+	all passageiro : VIP | passageiro.ticket = Vermelho implies
 	(# getBagagensPesadas[passageiro] > 2 or
 	# getBagagensMedianas[passageiro] > 2 or
 	# getBagagensLeve[passageiro] > 1)
 }
 
+--Excluir os Checks para ter visualizacao dos exemplos. Cada check parece
+-- funcionar como como um run show, o primeiro check eh executado e dps nao executa mais nada
 check bagagensPassageiroComumValidos for 10
 check bagagensPassageiroComumInvalidos for 10
 check bagagensPassageiroMilhagemValidos for 10
