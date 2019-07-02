@@ -1,21 +1,26 @@
 MODULE main
 	
 	
-	--O comum leva 1 leve e 1 pesada
-	--Milhagem leva 1 leve, 1 pesada e 1 media
-	--VIP leva ate 2 leves, 2 pesadas e 1 media
+	--O comum leva ate 1 leve e 1 pesada
+	--Milhagem leva ate 1 leve, 1 pesada e 1 media
+	--VIP leva ate 1 leve, 2 medias e 2 pesadas
 	VAR
+
 		bagagem:{leve,media,pesada,terminou};
 		passageiro:{comum,milhagem,vip};
 		ticket:{verde,vermelho};
-		--leve,media,pesada
-		carregando: array 0..2 of 0..10;
+		
+		bagagemLeve : 0..10;
+		bagagemMediana : 0..10;
+		bagagemPesada : 0..10;
+				
 	
 	ASSIGN
-		init(carregando[0]):= 0;
-		init(carregando[1]):= 0;
-		init(carregando[2]):= 0;
+		init(bagagemLeve):= 0;
+		init(bagagemMediana):= 0;
+		init(bagagemPesada):= 0;
 		init(ticket):=verde;
+		
 		
 		--Removida a "selecao" das bagagens.
 		
@@ -24,24 +29,24 @@ MODULE main
 			TRUE:terminou;
 		esac;
 		
-		next(carregando[0]):=case
-			bagagem = comum & carregando[0]<10: carregando[0]+1;
-			TRUE: carregando[0];
+		next(bagagemLeve):=case
+			bagagem = leve & bagagemLeve<10: bagagemLeve+1;
+			TRUE: bagagemLeve;
 		esac;
-		next(carregando[1]):=case
-			bagagem = media & carregando[1]<10: carregando[1]+1;
-			TRUE: carregando[1];
+		next(bagagemMediana):=case
+			bagagem = media & bagagemMediana<10: bagagemMediana+1;
+			TRUE: bagagemMediana;
 		esac;
-		next(carregando[2]):=case
-			bagagem = pesada & carregando[2]<10: carregando[2]+1;
-			TRUE: carregando[2];
+		next(bagagemPesada):=case
+			bagagem = pesada & bagagemPesada<10: bagagemPesada+1;
+			TRUE: bagagemPesada;
 		esac;
 		
 		next(ticket):=case
-			
-			passageiro = comum & (carregando[0]<2 & carregando[1] = 0 & carregando[2]<2) : verde;
-			passageiro = milhagem & (carregando[0]<2 & carregando[1]<2 & carregando[2]<2): verde;
-			passageiro = vip & (carregando[0]<3 & carregando[1]<2 & carregando[2]<3): verde;
+
+			passageiro = comum & (bagagemLeve<2 & bagagemMediana = 0 & bagagemPesada<2) : verde;
+			passageiro = milhagem & (bagagemLeve<2 & bagagemMediana<2 & bagagemPesada<2): verde;
+			passageiro = vip & (bagagemLeve<2 & bagagemMediana<3 & bagagemPesada<3): verde;
 			TRUE: vermelho;
 			
 		esac;
@@ -51,23 +56,23 @@ MODULE main
 	
 	--Finally: φ eventually has to hold (somewhere on the subsequent path).
 	
+
+
 	--CONDICOES DE TICKET VERDE
+	--Exemplo do primeiro LTL: Eventualmente passageiro vai ser comum e seu carregamento estará de acordo com as condições de ticket verde.
 	
-	
-	--Exemplo do promeiro LTL: Eventualmente passageiro vai ser comum e seu carregamento estará de acordo com as condições de ticket verde.
-	
-	LTLSPEC G(F((passageiro = comum & bagagem = terminou & carregando[0]<2 & carregando[1]<1 & carregando[2]<2)->(ticket = verde)));
-	LTLSPEC G(F((passageiro = milhagem & bagagem = terminou & carregando[0]<2 & carregando[1]<2 & carregando[2]<2)->(ticket = verde)));
-	LTLSPEC G(F((passageiro = vip & bagagem = terminou & carregando[0]<3 & carregando[1]<2 & carregando[2]<3)->(ticket = verde)));
+	LTLSPEC G(F((passageiro = comum & bagagem = terminou & bagagemLeve<2 & bagagemMediana<1 & bagagemPesada<2)->(ticket = verde)));
+	LTLSPEC G(F((passageiro = milhagem & bagagem = terminou & bagagemLeve<2 & bagagemMediana<2 & bagagemPesada<2)->(ticket = verde)));
+	LTLSPEC G(F((passageiro = vip & bagagem = terminou & bagagemLeve<2 & bagagemMediana<3 & bagagemPesada<3)->(ticket = verde)));
 	
 	
 	--CONDICOES DE TICKET VERMELHO
 	
-	LTLSPEC G(F((passageiro = comum & bagagem = terminou & (carregando[0]>1 | carregando[1]>0 | carregando[2]>1)) -> (ticket = vermelho)));
-	LTLSPEC G(F((passageiro = milhagem & bagagem = terminou & (carregando[0]>1 | carregando[1]>1 | carregando[2]>1)) -> (ticket = vermelho)));
-	LTLSPEC G(F((passageiro = vip & bagagem = terminou & (carregando[0]>2 | carregando[1]>1 | carregando[2]>2)) -> ticket = vermelho));
+	LTLSPEC G(F((passageiro = comum & bagagem = terminou & (bagagemLeve>1 | bagagemMediana>0 | bagagemPesada>1)) -> (ticket = vermelho)));
+	LTLSPEC G(F((passageiro = milhagem & bagagem = terminou & (bagagemLeve>1 | bagagemMediana>1 | bagagemPesada>1)) -> (ticket = vermelho)));
+	LTLSPEC G(F((passageiro = vip & bagagem = terminou & (bagagemLeve>1 | bagagemMediana>2 | bagagemPesada>2)) -> ticket = vermelho));
 	
 	
-	--VERIFICANDO SE MAIS DE DUAS BAGAGENS LEVES OU PESADAS OU MAIS DE UMA MEDIA SEMPRE RESULTA EM UM TICKET VERMELHO
-	LTLSPEC G(F((carregando[0]>2 | carregando[1]>1 | carregando[2]>2) -> (ticket = vermelho)));
+	--VERIFICANDO SE MAIS DE DUAS BAGAGENS MEDIAS OU PESADAS OU MAIS DE UMA LEVE SEMPRE RESULTA EM UM TICKET VERMELHO
+	LTLSPEC G(F((bagagemLeve>1 | bagagemMediana>2 | bagagemPesada>2) -> (ticket = vermelho)));
 	
