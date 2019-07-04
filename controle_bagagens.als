@@ -25,6 +25,7 @@ sig Leve,Mediana,Pesada extends Bagagem{}
 
 abstract sig Ticket{}
 sig Verde,Vermelho extends Ticket{}
+
 ------------------------------------------------------------------------------------------------
 -->                  FUNÇÕES
 -----------------------------------------------------------------------------------------------
@@ -45,7 +46,6 @@ fun getBagagensPesadas [p: Passageiro] : set Bagagem {
 -->                  PREDICADOS
 -----------------------------------------------------------------------------------------------
 
---parece que nao precisa usar 'and' no  'pred', se der algum erro dps, volta com os 'and'
 pred limiteComum [c:Comum]{
 	no getBagagensMedianas[c] 
 	lone getBagagensLeve[c] 
@@ -136,8 +136,6 @@ assert bagagensPassageiroVIPInvalidos {
 	# getBagagensLeve[passageiro] > 1)
 }
 
---Excluir os Checks para ter visualizacao dos exemplos. Cada check parece
--- funcionar como como um run show, o primeiro check eh executado e dps nao executa mais nada
 check bagagensPassageiroComumValidos for 10
 check bagagensPassageiroComumInvalidos for 10
 check bagagensPassageiroMilhagemValidos for 10
