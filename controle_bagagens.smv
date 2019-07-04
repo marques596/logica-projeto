@@ -1,9 +1,9 @@
 MODULE main
 	
-	
 	--O comum leva ate 1 leve e 1 pesada
 	--Milhagem leva ate 1 leve, 1 pesada e 1 media
 	--VIP leva ate 1 leve, 2 medias e 2 pesadas
+
 	VAR
 
 		bagagem:{leve,media,pesada,terminou};
@@ -21,8 +21,6 @@ MODULE main
 		init(bagagemPesada):= 0;
 		init(ticket):=verde;
 		
-		
-		--Removida a "selecao" das bagagens.
 		
 		next(bagagem):=case
 			bagagem != terminou:{leve,media,pesada,terminou};
@@ -50,9 +48,6 @@ MODULE main
 			TRUE: vermelho;
 			
 		esac;
-		
-	
-	--Antes a especificação para ser verde não fazia sentido, se trocasse a condição para aceitar vermelho ainda assim viria "true".
 	
 	--Finally: φ eventually has to hold (somewhere on the subsequent path).
 	
@@ -74,5 +69,6 @@ MODULE main
 	
 	
 	--VERIFICANDO SE MAIS DE DUAS BAGAGENS MEDIAS OU PESADAS OU MAIS DE UMA LEVE SEMPRE RESULTA EM UM TICKET VERMELHO
+
 	LTLSPEC G(F((bagagemLeve>1 | bagagemMediana>2 | bagagemPesada>2) -> (ticket = vermelho)));
 	
